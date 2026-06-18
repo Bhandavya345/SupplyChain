@@ -1,115 +1,149 @@
-package auth
+package inventory
 
 import (
 	"net/http"
+	"strconv"
 
-	"github.com/Bhandavya345/supply-chain-system/internal/utils"
 	"github.com/Bhandavya345/supply-chain-system/models"
-
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
-// Register godoc
-// @Summary Register User
-// @Description Register a new user
-// @Tags Authentication
+// Create godoc
+// @Summary Create Inventory
+// @Tags Inventory
 // @Accept json
 // @Produce json
-// @Param user body models.User true "User"
-// @Success 201 {object} map[string]interface{}
-// @Router /api/auth/register [post]
-func Register(c *gin.Context) {
+// @Param inventory body models.Inventory true "Inventory"
+// @Success 201 {object} models.Inventory
+// @Router /api/inventory [post]
+func Create(c *gin.Context) {
 
-	var user models.User
+	var item models.Inventory
 
-	if err := c.ShouldBindJSON(&user); err != nil {
+	if err := c.ShouldBindJSON(&item); err != nil {
+
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
+
 		return
 	}
 
-	err := RegisterUser(&user)
+	err := CreateInventoryService(&item)
 
 	if err != nil {
+
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
+
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "User registered successfully",
+		"message": "Inventory created successfully",
 	})
 }
 
-// Login godoc
-// @Summary Login User
-// @Description Login and generate JWT token
-// @Tags Authentication
-// @Accept json
+// GetAll godoc
+// @Summary Get All Inventory
+// @Tags Inventory
 // @Produce json
-// @Success 200 {object} map[string]interface{}
-// @Router /api/auth/login [post]
-func Login(c *gin.Context) {
+// @Success 200 {array} models.Inventory
+// @Router /api/inventory [get]
+func GetAll(c *gin.Context) {
 
-	var loginRequest struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+	items, err := GetInventoryService()
 
-	if err := c.ShouldBindJSON(&loginRequest); err != nil {
+	if err != nil {
 
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 
 		return
 	}
 
-	user, err := GetUserByEmail(loginRequest.Email)
+	c.JSON(http.StatusOK, items)
+}
+
+// GetInventoryByID godoc
+// @Summary Get Inventory by ID
+// @Description Get inventory details by ID
+// @Tags Inventory
+// @Produce json
+// @Param id path int true "Inventory ID"
+// @Success 200 {object} models.Inventory
+// @Failure 404 {object} map[string]interface{}
+// @Router /api/inventory/{id} [get]
+func GetByID(c *gin.Context) {
+
+	idParam := c.Param("id")
+
+	id, err := strconv.ParseUint(idParam, 10, 64)
 
 	if err != nil {
 
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "Invalid email or password",
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid inventory id",
 		})
-
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword(
-		[]byte(user.Password),
-		[]byte(loginRequest.Password),
-	)
+	inventory, err := GetInventoryByID(uint(id))
 
 	if err != nil {
 
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "Invalid email or password",
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "Inventory not found",
 		})
-
 		return
 	}
 
-	token, err := utils.GenerateToken(
-		user.ID,
-		user.Email,
-		user.Role,
-	)
+	c.JSON(http.StatusOK, inventory)
+}
+
+// Update godoc
+// @Summary Update Inventory
+// @Tags Inventory
+// @Accept json
+// @Param id path int true "Inventory ID"
+// @Param inventory body models.Inventory true "Inventory"
+// @Router /api/inventory/{id} [put]
+func Update(c *gin.Context) {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	var item models.Inventory
+
+	if err := c.ShouldBindJSON(&item); err != nil {
+		c.JSON(400, gin.H{"message": err.Error()})
+		return
+	}
+
+	err := EditInventory(uint(id), &item)
 
 	if err != nil {
-
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Failed to generate token",
-		})
-
+		c.JSON(500, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Login successful",
-		"token":   token,
-	})
+	c.JSON(200, gin.H{"message": "Inventory updated"})
+}
+
+// Delete godoc
+// @Summary Delete Inventory
+// @Tags Inventory
+// @Param id path int true "Inventory ID"
+// @Router /api/inventory/{id} [delete]
+func Delete(c *gin.Context) {
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
+
+	err := RemoveInventory(uint(id))
+
+	if err != nil {
+		c.JSON(500, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Inventory deleted"})
 }
