@@ -65,7 +65,7 @@ func main() {
 	// =========================
 
 	api := router.Group("/api")
-	//api.Use(middleware.AuthMiddleware())
+	api.Use(middleware.AuthMiddleware())
 
 	// Inventory Routes
 	api.POST("/inventory", inventory.Create)
