@@ -1,0 +1,369 @@
+basePath: /
+definitions:
+  models.Inventory:
+    properties:
+      id:
+        type: integer
+      price:
+        type: number
+      product_name:
+        type: string
+      quantity:
+        type: integer
+      supplier_id:
+        type: integer
+    type: object
+  models.Shipment:
+    properties:
+      delivery_date:
+        type: string
+      destination:
+        type: string
+      id:
+        type: integer
+      inventory_id:
+        type: integer
+      shipment_date:
+        type: string
+      source:
+        type: string
+      status:
+        type: string
+      tracking_number:
+        type: string
+    type: object
+  models.Supplier:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      phone:
+        type: string
+      supplier_name:
+        type: string
+    type: object
+  models.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Supply Chain Management System using Golang, Gin, PostgreSQL
+  title: Supply Chain Management API
+  version: "1.0"
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login and generate JWT token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login User
+      tags:
+      - Authentication
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register User
+      tags:
+      - Authentication
+  /api/inventory:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Inventory'
+            type: array
+      summary: Get All Inventory
+      tags:
+      - Inventory
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Inventory
+        in: body
+        name: inventory
+        required: true
+        schema:
+          $ref: '#/definitions/models.Inventory'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Inventory'
+      summary: Create Inventory
+      tags:
+      - Inventory
+  /api/inventory/{id}:
+    delete:
+      parameters:
+      - description: Inventory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      summary: Delete Inventory
+      tags:
+      - Inventory
+    get:
+      description: Get inventory details by ID
+      parameters:
+      - description: Inventory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Inventory'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get Inventory by ID
+      tags:
+      - Inventory
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Inventory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Inventory
+        in: body
+        name: inventory
+        required: true
+        schema:
+          $ref: '#/definitions/models.Inventory'
+      responses: {}
+      summary: Update Inventory
+      tags:
+      - Inventory
+  /api/shipments:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Shipment'
+            type: array
+      summary: Get All Shipments
+      tags:
+      - Shipments
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Shipment
+        in: body
+        name: shipment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Shipment'
+      responses: {}
+      summary: Create Shipment
+      tags:
+      - Shipments
+  /api/shipments/{id}:
+    delete:
+      parameters:
+      - description: Shipment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      summary: Delete Shipment
+      tags:
+      - Shipments
+    get:
+      description: Get shipment details by ID
+      parameters:
+      - description: Shipment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Shipment'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get Shipment by ID
+      tags:
+      - Shipments
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Shipment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Shipment
+        in: body
+        name: shipment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Shipment'
+      responses: {}
+      summary: Update Shipment
+      tags:
+      - Shipments
+  /api/shipments/track/{trackingNumber}:
+    get:
+      parameters:
+      - description: Tracking Number
+        in: path
+        name: trackingNumber
+        required: true
+        type: string
+      responses: {}
+      summary: Track Shipment
+      tags:
+      - Shipments
+  /api/suppliers:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Supplier'
+            type: array
+      summary: Get All Suppliers
+      tags:
+      - Suppliers
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Supplier
+        in: body
+        name: supplier
+        required: true
+        schema:
+          $ref: '#/definitions/models.Supplier'
+      responses: {}
+      summary: Create Supplier
+      tags:
+      - Suppliers
+  /api/suppliers/{id}:
+    delete:
+      parameters:
+      - description: Supplier ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses: {}
+      summary: Delete Supplier
+      tags:
+      - Suppliers
+    get:
+      description: Get supplier details by ID
+      parameters:
+      - description: Supplier ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Supplier'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get Supplier by ID
+      tags:
+      - Suppliers
+    put:
+      parameters:
+      - description: Supplier ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Supplier
+        in: body
+        name: supplier
+        required: true
+        schema:
+          $ref: '#/definitions/models.Supplier'
+      responses: {}
+      summary: Update Supplier
+      tags:
+      - Suppliers
+swagger: "2.0"
