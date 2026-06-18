@@ -1,81 +1,78 @@
-package inventory
+package shipment
 
 import (
 	"net/http"
 	"strconv"
 
 	"github.com/Bhandavya345/supply-chain-system/models"
+
 	"github.com/gin-gonic/gin"
 )
 
 // Create godoc
-// @Summary Create Inventory
-// @Tags Inventory
+// @Summary Create Shipment
+// @Tags Shipments
 // @Accept json
-// @Produce json
-// @Param inventory body models.Inventory true "Inventory"
-// @Success 201 {object} models.Inventory
-// @Router /api/inventory [post]
+// @Param shipment body models.Shipment true "Shipment"
+// @Router /api/shipments [post]
 func Create(c *gin.Context) {
 
-	var item models.Inventory
+	var shipment models.Shipment
 
-	if err := c.ShouldBindJSON(&item); err != nil {
+	if err := c.ShouldBindJSON(&shipment); err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
+			"message": err.Error(),
 		})
-
 		return
 	}
 
-	err := CreateInventoryService(&item)
+	err := AddShipment(&shipment)
 
 	if err != nil {
 
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
+			"message": err.Error(),
 		})
-
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "Inventory created successfully",
+		"message": "Shipment created successfully",
+		"data":    shipment,
 	})
 }
 
 // GetAll godoc
-// @Summary Get All Inventory
-// @Tags Inventory
+// @Summary Get All Shipments
+// @Tags Shipments
 // @Produce json
-// @Success 200 {array} models.Inventory
-// @Router /api/inventory [get]
+// @Success 200 {array} models.Shipment
+// @Router /api/shipments [get]
 func GetAll(c *gin.Context) {
 
-	items, err := GetInventoryService()
+	shipments, err := FetchAllShipments()
 
 	if err != nil {
 
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
+			"message": err.Error(),
 		})
-
 		return
 	}
 
-	c.JSON(http.StatusOK, items)
+	c.JSON(http.StatusOK, shipments)
 }
 
-// GetInventoryByID godoc
-// @Summary Get Inventory by ID
-// @Description Get inventory details by ID
-// @Tags Inventory
+// GetShipmentByID godoc
+// @Summary Get Shipment by ID
+// @Description Get shipment details by ID
+// @Tags Shipments
 // @Produce json
-// @Param id path int true "Inventory ID"
-// @Success 200 {object} models.Inventory
+// @Param id path int true "Shipment ID"
+// @Success 200 {object} models.Shipment
 // @Failure 404 {object} map[string]interface{}
-// @Router /api/inventory/{id} [get]
+// @Router /api/shipments/{id} [get]
 func GetByID(c *gin.Context) {
 
 	idParam := c.Param("id")
@@ -85,65 +82,92 @@ func GetByID(c *gin.Context) {
 	if err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Invalid inventory id",
+			"message": "Invalid shipment id",
 		})
 		return
 	}
 
-	inventory, err := GetInventoryByID(uint(id))
+	shipment, err := FetchShipmentByID(uint(id))
 
 	if err != nil {
 
 		c.JSON(http.StatusNotFound, gin.H{
-			"message": "Inventory not found",
+			"message": "Shipment not found",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, inventory)
+	c.JSON(http.StatusOK, shipment)
+}
+
+// Track godoc
+// @Summary Track Shipment
+// @Tags Shipments
+// @Param trackingNumber path string true "Tracking Number"
+// @Router /api/shipments/track/{trackingNumber} [get]
+func Track(c *gin.Context) {
+
+	trackingNumber := c.Param("trackingNumber")
+
+	shipment, err := TrackShipment(trackingNumber)
+
+	if err != nil {
+
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "Shipment not found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"tracking_number": shipment.TrackingNumber,
+		"status":          shipment.Status,
+		"source":          shipment.Source,
+		"destination":     shipment.Destination,
+	})
 }
 
 // Update godoc
-// @Summary Update Inventory
-// @Tags Inventory
+// @Summary Update Shipment
+// @Tags Shipments
 // @Accept json
-// @Param id path int true "Inventory ID"
-// @Param inventory body models.Inventory true "Inventory"
-// @Router /api/inventory/{id} [put]
+// @Param id path int true "Shipment ID"
+// @Param shipment body models.Shipment true "Shipment"
+// @Router /api/shipments/{id} [put]
 func Update(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	var item models.Inventory
+	var shipment models.Shipment
 
-	if err := c.ShouldBindJSON(&item); err != nil {
+	if err := c.ShouldBindJSON(&shipment); err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
 
-	err := EditInventory(uint(id), &item)
+	err := EditShipment(uint(id), &shipment)
 
 	if err != nil {
 		c.JSON(500, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "Inventory updated"})
+	c.JSON(200, gin.H{"message": "Shipment updated"})
 }
 
 // Delete godoc
-// @Summary Delete Inventory
-// @Tags Inventory
-// @Param id path int true "Inventory ID"
-// @Router /api/inventory/{id} [delete]
+// @Summary Delete Shipment
+// @Tags Shipments
+// @Param id path int true "Shipment ID"
+// @Router /api/shipments/{id} [delete]
 func Delete(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	err := RemoveInventory(uint(id))
+	err := RemoveShipment(uint(id))
 
 	if err != nil {
 		c.JSON(500, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "Inventory deleted"})
+	c.JSON(200, gin.H{"message": "Shipment deleted"})
 }

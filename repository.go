@@ -1,42 +1,56 @@
-package inventory
+package shipment
 
 import (
 	"github.com/Bhandavya345/supply-chain-system/internal/database"
 	"github.com/Bhandavya345/supply-chain-system/models"
 )
 
-func CreateInventory(item *models.Inventory) error {
-	return database.DB.Create(item).Error
+func CreateShipment(shipment *models.Shipment) error {
+	return database.DB.Create(shipment).Error
 }
 
-func GetAllInventory() ([]models.Inventory, error) {
+func GetAllShipments() ([]models.Shipment, error) {
 
-	var items []models.Inventory
+	var shipments []models.Shipment
 
-	err := database.DB.Find(&items).Error
+	err := database.DB.Find(&shipments).Error
 
-	return items, err
+	return shipments, err
 }
 
-func GetInventoryByID(id uint) (*models.Inventory, error) {
+func GetShipmentByID(id uint) (*models.Shipment, error) {
 
-	var item models.Inventory
+	var shipment models.Shipment
 
-	err := database.DB.First(&item, id).Error
+	err := database.DB.First(&shipment, id).Error
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &item, nil
+	return &shipment, nil
 }
 
-func UpdateInventory(id uint, item *models.Inventory) error {
-	return database.DB.Model(&models.Inventory{}).
+func GetShipmentByTrackingNumber(trackingNumber string) (*models.Shipment, error) {
+
+	var shipment models.Shipment
+
+	err := database.DB.
+		Where("tracking_number = ?", trackingNumber).
+		First(&shipment).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &shipment, nil
+}
+func UpdateShipment(id uint, shipment *models.Shipment) error {
+	return database.DB.Model(&models.Shipment{}).
 		Where("id = ?", id).
-		Updates(item).Error
+		Updates(shipment).Error
 }
 
-func DeleteInventory(id uint) error {
-	return database.DB.Delete(&models.Inventory{}, id).Error
+func DeleteShipment(id uint) error {
+	return database.DB.Delete(&models.Shipment{}, id).Error
 }

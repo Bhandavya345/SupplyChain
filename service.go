@@ -1,19 +1,26 @@
-package inventory
+package shipment
 
 import "github.com/Bhandavya345/supply-chain-system/models"
 
-func CreateInventoryService(item *models.Inventory) error {
-	return CreateInventory(item)
+func AddShipment(shipment *models.Shipment) error {
+	return CreateShipment(shipment)
 }
 
-func GetInventoryService() ([]models.Inventory, error) {
-	return GetAllInventory()
+func FetchAllShipments() ([]models.Shipment, error) {
+	return GetAllShipments()
 }
 
-func EditInventory(id uint, item *models.Inventory) error {
-	return UpdateInventory(id, item)
+func FetchShipmentByID(id uint) (*models.Shipment, error) {
+	return GetShipmentByID(id)
 }
 
-func RemoveInventory(id uint) error {
-	return DeleteInventory(id)
+func TrackShipment(trackingNumber string) (*models.Shipment, error) {
+	return GetShipmentByTrackingNumber(trackingNumber)
+}
+func EditShipment(id uint, shipment *models.Shipment) error {
+	return UpdateShipment(id, shipment)
+}
+
+func RemoveShipment(id uint) error {
+	return DeleteShipment(id)
 }
