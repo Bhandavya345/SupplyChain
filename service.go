@@ -1,26 +1,22 @@
-package shipment
+package supplier
 
 import "github.com/Bhandavya345/supply-chain-system/models"
 
-func AddShipment(shipment *models.Shipment) error {
-	return CreateShipment(shipment)
+func AddSupplier(supplier *models.Supplier) error {
+	return CreateSupplier(supplier)
 }
 
-func FetchAllShipments() ([]models.Shipment, error) {
-	return GetAllShipments()
+func FetchAllSuppliers() ([]models.Supplier, error) {
+	return GetAllSuppliers()
 }
 
-func FetchShipmentByID(id uint) (*models.Shipment, error) {
-	return GetShipmentByID(id)
+func FetchSupplierByID(id uint) (*models.Supplier, error) {
+	return GetSupplierByID(id)
+}
+func EditSupplier(id uint, supplier *models.Supplier) error {
+	return UpdateSupplier(id, supplier)
 }
 
-func TrackShipment(trackingNumber string) (*models.Shipment, error) {
-	return GetShipmentByTrackingNumber(trackingNumber)
-}
-func EditShipment(id uint, shipment *models.Shipment) error {
-	return UpdateShipment(id, shipment)
-}
-
-func RemoveShipment(id uint) error {
-	return DeleteShipment(id)
+func RemoveSupplier(id uint) error {
+	return DeleteSupplier(id)
 }

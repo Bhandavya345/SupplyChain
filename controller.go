@@ -1,4 +1,4 @@
-package shipment
+package supplier
 
 import (
 	"net/http"
@@ -10,16 +10,16 @@ import (
 )
 
 // Create godoc
-// @Summary Create Shipment
-// @Tags Shipments
+// @Summary Create Supplier
+// @Tags Suppliers
 // @Accept json
-// @Param shipment body models.Shipment true "Shipment"
-// @Router /api/shipments [post]
+// @Param supplier body models.Supplier true "Supplier"
+// @Router /api/suppliers [post]
 func Create(c *gin.Context) {
 
-	var shipment models.Shipment
+	var supplier models.Supplier
 
-	if err := c.ShouldBindJSON(&shipment); err != nil {
+	if err := c.ShouldBindJSON(&supplier); err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -27,7 +27,7 @@ func Create(c *gin.Context) {
 		return
 	}
 
-	err := AddShipment(&shipment)
+	err := AddSupplier(&supplier)
 
 	if err != nil {
 
@@ -38,20 +38,20 @@ func Create(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "Shipment created successfully",
-		"data":    shipment,
+		"message": "Supplier created successfully",
+		"data":    supplier,
 	})
 }
 
 // GetAll godoc
-// @Summary Get All Shipments
-// @Tags Shipments
+// @Summary Get All Suppliers
+// @Tags Suppliers
 // @Produce json
-// @Success 200 {array} models.Shipment
-// @Router /api/shipments [get]
+// @Success 200 {array} models.Supplier
+// @Router /api/suppliers [get]
 func GetAll(c *gin.Context) {
 
-	shipments, err := FetchAllShipments()
+	suppliers, err := FetchAllSuppliers()
 
 	if err != nil {
 
@@ -61,18 +61,18 @@ func GetAll(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, shipments)
+	c.JSON(http.StatusOK, suppliers)
 }
 
-// GetShipmentByID godoc
-// @Summary Get Shipment by ID
-// @Description Get shipment details by ID
-// @Tags Shipments
+// GetSupplierByID godoc
+// @Summary Get Supplier by ID
+// @Description Get supplier details by ID
+// @Tags Suppliers
 // @Produce json
-// @Param id path int true "Shipment ID"
-// @Success 200 {object} models.Shipment
+// @Param id path int true "Supplier ID"
+// @Success 200 {object} models.Supplier
 // @Failure 404 {object} map[string]interface{}
-// @Router /api/shipments/{id} [get]
+// @Router /api/suppliers/{id} [get]
 func GetByID(c *gin.Context) {
 
 	idParam := c.Param("id")
@@ -82,92 +82,64 @@ func GetByID(c *gin.Context) {
 	if err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "Invalid shipment id",
+			"message": "Invalid supplier id",
 		})
 		return
 	}
 
-	shipment, err := FetchShipmentByID(uint(id))
+	supplier, err := FetchSupplierByID(uint(id))
 
 	if err != nil {
 
 		c.JSON(http.StatusNotFound, gin.H{
-			"message": "Shipment not found",
+			"message": "Supplier not found",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, shipment)
-}
-
-// Track godoc
-// @Summary Track Shipment
-// @Tags Shipments
-// @Param trackingNumber path string true "Tracking Number"
-// @Router /api/shipments/track/{trackingNumber} [get]
-func Track(c *gin.Context) {
-
-	trackingNumber := c.Param("trackingNumber")
-
-	shipment, err := TrackShipment(trackingNumber)
-
-	if err != nil {
-
-		c.JSON(http.StatusNotFound, gin.H{
-			"message": "Shipment not found",
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"tracking_number": shipment.TrackingNumber,
-		"status":          shipment.Status,
-		"source":          shipment.Source,
-		"destination":     shipment.Destination,
-	})
+	c.JSON(http.StatusOK, supplier)
 }
 
 // Update godoc
-// @Summary Update Shipment
-// @Tags Shipments
-// @Accept json
-// @Param id path int true "Shipment ID"
-// @Param shipment body models.Shipment true "Shipment"
-// @Router /api/shipments/{id} [put]
+// @Summary Update Supplier
+// @Tags Suppliers
+// @Param id path int true "Supplier ID"
+// @Param supplier body models.Supplier true "Supplier"
+// @Router /api/suppliers/{id} [put]
 func Update(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	var shipment models.Shipment
+	var supplier models.Supplier
 
-	if err := c.ShouldBindJSON(&shipment); err != nil {
+	if err := c.ShouldBindJSON(&supplier); err != nil {
 		c.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
 
-	err := EditShipment(uint(id), &shipment)
+	err := EditSupplier(uint(id), &supplier)
 
 	if err != nil {
 		c.JSON(500, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "Shipment updated"})
+	c.JSON(200, gin.H{"message": "Supplier updated"})
 }
 
 // Delete godoc
-// @Summary Delete Shipment
-// @Tags Shipments
-// @Param id path int true "Shipment ID"
-// @Router /api/shipments/{id} [delete]
+// @Summary Delete Supplier
+// @Tags Suppliers
+// @Param id path int true "Supplier ID"
+// @Router /api/suppliers/{id} [delete]
 func Delete(c *gin.Context) {
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 
-	err := RemoveShipment(uint(id))
+	err := RemoveSupplier(uint(id))
 
 	if err != nil {
 		c.JSON(500, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "Shipment deleted"})
+	c.JSON(200, gin.H{"message": "Supplier deleted"})
 }
